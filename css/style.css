@@ -1,0 +1,297 @@
+:root {
+  --bg-deep: #0E2230;
+  --bg-soft: #163B49;
+  --circle: #9ED9CC;
+  --halo: rgba(158, 217, 204, .28);
+  --text: #E7F2EF;
+  --text-dim: #9FB8B4;
+}
+
+body {
+  margin: 0;
+  font-family: ui-rounded, "SF Pro Rounded", -apple-system, "Segoe UI Variable", system-ui, sans-serif;
+  background: radial-gradient(ellipse at 50% 30%, var(--bg-soft), var(--bg-deep) 70%);
+  color: var(--text);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, #214854, transparent 70%);
+  opacity: calc(var(--breath, 0) * .35);
+}
+
+.app {
+  height: 100vh;
+  height: 100svh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: max(20px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.stage {
+  --size: min(72vw, 44vh);
+  flex: 1;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.stage > * { grid-area: 1 / 1; }
+
+.orb {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+
+.glow,
+.circle,
+.ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.glow {
+  inset: -15%;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, rgba(158, 217, 204, .2), transparent 70%);
+  transform: scale(var(--scale, .55));
+  opacity: calc(.3 + .7 * var(--breath, 0));
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.circle {
+  width: 86%;
+  height: 86%;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side,
+    rgba(158, 217, 204, .08) 0%,
+    rgba(158, 217, 204, .12) 70%,
+    rgba(158, 217, 204, .3) 85%,
+    rgba(158, 217, 204, .6) 96%,
+    rgba(158, 217, 204, .75) 100%);
+  box-shadow: 0 0 0 1.25px rgba(158, 217, 204, .55);
+  transform: scale(var(--scale, .55));
+  will-change: transform;
+}
+
+.app.idle .circle { transition: transform 700ms ease; }
+.app.running .circle { transition: none; }
+.app.idle .glow { transition: transform 700ms ease, opacity 700ms ease; }
+.app.running .glow { transition: none; }
+
+.ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.seg-track,
+.seg-fill {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+}
+
+.seg-track { stroke: rgba(231, 242, 239, .16); }
+.seg-fill { stroke: var(--circle); }
+
+.cue {
+  z-index: 1;
+  pointer-events: none;
+  max-width: 80%;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.phase {
+  font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 1px 10px rgba(14, 34, 48, .45);
+  transition: opacity 240ms ease-out;
+}
+
+.count {
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1;
+  margin: .25rem 0 0;
+  min-height: 1em;
+  text-shadow: 0 1px 10px rgba(14, 34, 48, .45);
+}
+
+.app.idle .cue { max-width: calc(var(--size) * .375); }
+.app.idle .phase { font-size: clamp(.95rem, 4.4vw, 1.1rem); }
+.app.idle .count { min-height: 0; margin: 0; }
+
+.pattern {
+  color: var(--text-dim);
+  font-size: .95rem;
+  margin: 0 0 1.25rem;
+}
+
+.control {
+  width: min(100%, 360px);
+  min-height: 60px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 1.5px solid transparent;
+  background: var(--circle);
+  color: var(--bg-deep);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.app.running .control {
+  background: transparent;
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+.control:focus-visible {
+  outline: 3px solid var(--circle);
+  outline-offset: 3px;
+}
+
+.pattern {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.change {
+  background: none;
+  border: 0;
+  color: var(--circle);
+  font: inherit;
+  font-size: .95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px;
+  margin: -8px;
+  cursor: pointer;
+}
+
+.app.running .change { visibility: hidden; }
+
+.sheet {
+  border: 0;
+  padding: 0;
+  margin: auto 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 85dvh;
+  background: var(--bg-soft);
+  color: var(--text);
+  border-radius: 20px 20px 0 0;
+}
+
+.sheet::backdrop { background: rgba(5, 15, 22, .6); }
+
+.sheet-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  max-height: 85dvh;
+  padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+  margin: 0;
+}
+
+.sheet-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.patterns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.option {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  background: rgba(255, 255, 255, .04);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.option[aria-pressed="true"] { border-color: var(--circle); }
+
+.option-name { font-weight: 600; font-size: 1.1rem; }
+.option-tag { color: var(--circle); font-size: .85rem; }
+.option-timing { color: var(--text-dim); font-size: .95rem; }
+.option-why { font-size: .95rem; line-height: 1.45; }
+
+.close {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1.5px solid var(--text-dim);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.sources {
+  color: var(--text-dim);
+  font-size: .8rem;
+  margin: 0;
+}
+
+.change:focus-visible,
+.option:focus-visible,
+.close:focus-visible {
+  outline: 3px solid var(--circle);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { opacity: 0; }
+  .glow { opacity: .5; }
+}

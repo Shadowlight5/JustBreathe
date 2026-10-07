@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Just Breathe</title>
+  <meta name="description" content="Guided breathing patterns to calm down before a stressful moment. Works offline.">
+  <meta name="theme-color" content="#0E2230">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Just Breathe">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <main class="app idle">
+    <h1 class="title">Just Breathe</h1>
+    <section class="stage" aria-label="Breathing guide">
+      <div class="orb" aria-hidden="true">
+        <div class="glow"></div>
+        <div class="circle"></div>
+        <svg class="ring" viewBox="0 0 100 100" focusable="false"></svg>
+      </div>
+      <div class="cue"><p class="phase" aria-live="polite">Ready when you are</p><p class="count" aria-hidden="true"></p></div>
+    </section>
+    <p class="pattern"><span class="pattern-name"></span> <button class="change" type="button">Change</button></p>
+    <button class="control" type="button">Start</button>
+  </main>
+  <dialog class="sheet" aria-labelledby="sheet-title">
+    <form method="dialog" class="sheet-inner">
+      <h2 id="sheet-title" class="sheet-title">Choose a pattern</h2>
+      <ul class="patterns"></ul>
+      <p class="sources">Based on published trials of paced breathing. Sources are listed in the project README.</p>
+      <button class="close" type="submit">Close</button>
+    </form>
+  </dialog>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
