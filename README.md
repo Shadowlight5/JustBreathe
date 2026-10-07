@@ -4,7 +4,7 @@ A small, calm web app that guides you through one of five breathing patterns, ch
 from a picker, to help you settle before a stressful moment. A soft circle grows and
 shrinks with your breath, a thin ring around it fills through each step of the breath,
 and the screen tells you what to do and counts down each step. There is one main button:
-Start, which becomes Stop.
+Start, which becomes Stop, and you can also tap anywhere on the screen to start or stop.
 
 It is a Progressive Web App, so you can add it to your phone's home screen and, once it
 has loaded over HTTPS, it works with no internet connection. There is no account, no

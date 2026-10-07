@@ -150,7 +150,10 @@ async function relaunch({ width, height, reducedMotion = false }) {
 const rects = () => evaluate(`(() => {
   const r = (sel) => { const b = document.querySelector(sel).getBoundingClientRect();
     return { x: b.x, y: b.y, width: b.width, height: b.height, top: b.top, bottom: b.bottom }; };
-  return { cue: r('.cue'), circle: r('.circle') };
+  const range = document.createRange();
+  range.selectNodeContents(document.querySelector('.phase'));
+  const lines = new Set([...range.getClientRects()].map((b) => Math.round(b.top))).size;
+  return { cue: r('.cue'), circle: r('.circle'), lines };
 })()`);
 const round = (b) => `${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.width)}x${Math.round(b.height)}`;
 const cueFits = (r) => r.cue.width <= 0.80 * r.circle.width && r.cue.height <= 0.60 * r.circle.width;
@@ -212,7 +215,8 @@ async function main() {
     await hideCue(true);
     await screenshot(`${SHOT_PREFIX}-idle-bg.png`);
     await hideCue(false);
-    record('3e idle cue fits bubble', cueFits(r), `${rectDetail(r)} ${SHOT_PREFIX}-idle-bg.png`);
+    record('3e idle cue fits bubble', cueFits(r) && r.lines <= 2,
+      `${rectDetail(r)} lines=${r.lines} ${SHOT_PREFIX}-idle-bg.png`);
   });
 
   await step('4 breathing cycle', async () => {
@@ -237,7 +241,7 @@ async function main() {
 
     await evaluate(`document.querySelector('.control').click()`);
     c = await cue();
-    record('4d stop returns to idle', c.phase === 'Ready when you are' && c.idle && c.count === '',
+    record('4d stop returns to idle', c.phase === 'Tap anywhere to begin' && c.idle && c.count === '',
       `phase="${c.phase}" idle=${c.idle}`);
   });
 
@@ -303,6 +307,38 @@ async function main() {
       `phase=${phase} fills=${JSON.stringify(f)} cleared=${cleared} ${SHOT_PREFIX}-hold.png`);
   });
 
+  await step('4j tap anywhere toggles', async () => {
+    if (!(await cue()).idle) await evaluate(`document.querySelector('.control').click()`);
+    await choose('slow-exhale');
+    const state = () => evaluate(`({ running: document.querySelector('.app').classList.contains('running'),
+      idle: document.querySelector('.app').classList.contains('idle'),
+      phase: document.querySelector('.phase').textContent,
+      count: document.querySelector('.count').textContent })`);
+    const failed = [];
+    await evaluate(`document.querySelector('.stage').click()`);
+    await sleep(4600);
+    let s = await state();
+    if (!(s.running && s.phase === 'Exhale')) failed.push(`stage tap ${JSON.stringify(s)}`);
+    await evaluate(`document.querySelector('.title').click()`);
+    await sleep(100);
+    s = await state();
+    if (!(s.idle && s.phase === 'Tap anywhere to begin' && s.count === '')) failed.push(`title tap ${JSON.stringify(s)}`);
+    await evaluate(`document.querySelector('.pattern').click()`);
+    await sleep(300);
+    s = await state();
+    if (!(s.running && s.phase === 'Inhale' && s.count === '4')) failed.push(`pattern tap ${JSON.stringify(s)}`);
+    await evaluate(`document.querySelector('.control').click()`);
+    s = await state();
+    if (!s.idle) failed.push(`control stop ${JSON.stringify(s)}`);
+    await evaluate(`document.querySelector('.control').click()`);
+    const once = await state();
+    await evaluate(`document.querySelector('.control').click()`);
+    const twice = await state();
+    if (!once.running) failed.push(`control once running=${once.running}`);
+    if (!twice.idle) failed.push(`control twice idle=${twice.idle}`);
+    record('4j tap anywhere toggles', failed.length === 0, failed.length ? `failed: ${failed.join('; ')}` : '');
+  });
+
   await step('5 no horizontal overflow', async () => {
     const ok = await evaluate('document.documentElement.scrollWidth <= window.innerWidth');
     record('5 no horizontal overflow', ok === true);
@@ -338,6 +374,7 @@ async function main() {
     if (!(l.orbTop >= l.titleBottom)) failed.push(`orb top ${l.orbTop} < title bottom ${l.titleBottom}`);
     if (!(l.orbBottom <= l.patternTop)) failed.push(`orb bottom ${l.orbBottom} > pattern top ${l.patternTop}`);
     if (!cueFits(r)) failed.push('idle cue does not fit bubble');
+    if (!(r.lines <= 2)) failed.push(`idle label on ${r.lines} lines`);
 
     await choose('sigh');
     await evaluate(`document.querySelector('.control').click()`);
@@ -349,7 +386,7 @@ async function main() {
     if (c.phase !== 'Inhale again') failed.push(`phase at 3.5s "${c.phase}"`);
     if (!(ri.cue.width <= 0.80 * ri.circle.width)) failed.push('inhale cue wider than bubble');
     record('7 narrow viewport', failed.length === 0,
-      `${failed.length ? `failed: ${failed.join('; ')} | ` : ''}idle ${rectDetail(r)} inhale ${rectDetail(ri)} ` +
+      `${failed.length ? `failed: ${failed.join('; ')} | ` : ''}idle ${rectDetail(r)} lines=${r.lines} inhale ${rectDetail(ri)} ` +
       `control bottom=${Math.round(l.controlBottom)}/${l.innerHeight}`);
   });
 

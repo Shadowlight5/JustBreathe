@@ -41,7 +41,7 @@ function dispatch(type, extra = {}) {
 }
 
 test('activate deletes only older just-breathe caches', async () => {
-  fake.existing = ['just-breathe-v0', 'just-breathe-v1', 'just-breathe-v4', 'other-app-v4', 'unrelated'];
+  fake.existing = ['just-breathe-v0', 'just-breathe-v1', 'just-breathe-v5', 'other-app-v4', 'unrelated'];
   fake.deleted = [];
   fake.claimed = 0;
   await dispatch('activate').waited;

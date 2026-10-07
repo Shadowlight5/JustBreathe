@@ -13,7 +13,7 @@ const changeButton = document.querySelector('.change');
 const sheet = document.querySelector('.sheet');
 const list = document.querySelector('.patterns');
 
-const IDLE_TEXT = 'Ready when you are';
+const IDLE_TEXT = 'Tap anywhere to begin';
 const STORAGE_KEY = 'just-breathe.pattern';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -136,6 +136,10 @@ function stop(message = IDLE_TEXT) {
   lock.release();
 }
 
+function toggle() {
+  running ? stop() : start();
+}
+
 function renderOptions() {
   for (const p of PATTERNS) {
     const option = document.createElement('button');
@@ -187,7 +191,12 @@ function closeSheet() {
   else sheet.removeAttribute('open');
 }
 
-button.addEventListener('click', () => (running ? stop() : start()));
+button.addEventListener('click', toggle);
+
+app.addEventListener('click', (event) => {
+  if (event.target.closest('.control, .change')) return;
+  toggle();
+});
 
 changeButton.addEventListener('click', () => {
   if (!running) openSheet();
@@ -210,6 +219,7 @@ document.addEventListener('visibilitychange', () => {
 
 renderOptions();
 selectPattern(pattern.id);
+if (phaseEl.textContent !== IDLE_TEXT) phaseEl.textContent = IDLE_TEXT;
 orb.style.setProperty('--scale', minScale());
 document.documentElement.style.setProperty('--breath', 0);
 
