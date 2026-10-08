@@ -2,7 +2,7 @@
 // Activate deletes only older caches with PREFIX; other apps on this origin keep theirs.
 // A new version activates after every tab using the old one has closed, so HTML and scripts always come from one version.
 const PREFIX = 'just-breathe-';
-const CACHE = PREFIX + 'v5';
+const CACHE = PREFIX + 'v6';
 const ASSETS = [
   './',
   './index.html',

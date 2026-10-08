@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const CURRENT = readFileSync(join(ROOT, 'sw.js'), 'utf8').match(/const CACHE = PREFIX \+ '(v\d+)'/)[1];
 
 // Minimal service-worker globals; sw.js registers its handlers on import.
 const handlers = new Map();
@@ -41,11 +42,11 @@ function dispatch(type, extra = {}) {
 }
 
 test('activate deletes only older just-breathe caches', async () => {
-  fake.existing = ['just-breathe-v0', 'just-breathe-v1', 'just-breathe-v5', 'other-app-v4', 'unrelated'];
+  fake.existing = ['just-breathe-v0', 'just-breathe-v1', 'just-breathe-v5', `just-breathe-${CURRENT}`, 'other-app-v4', 'unrelated'];
   fake.deleted = [];
   fake.claimed = 0;
   await dispatch('activate').waited;
-  assert.deepEqual(fake.deleted, ['just-breathe-v0', 'just-breathe-v1']);
+  assert.deepEqual(fake.deleted, ['just-breathe-v0', 'just-breathe-v1', 'just-breathe-v5']);
   assert.equal(fake.claimed, 0);
 });
 
